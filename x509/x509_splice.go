@@ -6,7 +6,7 @@
 // This code is modified from the stock CreateCertificate to use a
 // pre-existing signature.
 
-// Last rebased on Go 1.12
+// Last rebased on Go 1.13beta1
 // Remove all content between "import" and "CreateCertificate" in original.
 // Remove all content after "CreateCertificate" in original.
 //go:generate bash install.sh
@@ -23,6 +23,7 @@ import (
 	//"crypto"
 	//"crypto/dsa"
 	//"crypto/ecdsa"
+	//"crypto/ed25519"
 	//"crypto/elliptic"
 	//"crypto/rsa"
 	_ "crypto/sha1"
@@ -33,8 +34,8 @@ import (
 	//"encoding/pem"
 	"errors"
 	//"fmt"
-	//"internal/x/crypto/cryptobyte"
-	//cryptobyte_asn1 "internal/x/crypto/cryptobyte/asn1"
+	//"golang.org/x/crypto/cryptobyte"
+	//cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 	//"io"
 	//"math/big"
 	//"net"
@@ -86,8 +87,9 @@ import (
 //
 // The returned slice is the certificate in DER encoding.
 //
-// All keys types that are implemented via crypto.Signer are supported (This
-// includes *rsa.PublicKey and *ecdsa.PublicKey.)
+// The currently supported key types are *rsa.PublicKey, *ecdsa.PublicKey and
+// ed25519.PublicKey. pub must be a supported key type, and priv must be a
+// crypto.Signer with a supported public key.
 //
 // The AuthorityKeyId will be taken from the SubjectKeyId of parent, if any,
 // unless the resulting certificate is self-signed. Otherwise the value from
@@ -158,15 +160,16 @@ func CreateCertificateWithSplicedSignature(template, parent *Certificate) (cert 
 	if err != nil {
 		return
 	}
-
 	c.Raw = tbsCertContents
 
-	//h := hashFunc.New()
-	//h.Write(tbsCertContents)
-	//digest := h.Sum(nil)
+	//signed := tbsCertContents
+	//if hashFunc != 0 {
+	//	h := hashFunc.New()
+	//	h.Write(signed)
+	//	signed = h.Sum(nil)
+	//}
 
-	//var signerOpts crypto.SignerOpts
-	//signerOpts = hashFunc
+	//var signerOpts crypto.SignerOpts = hashFunc
 	//if template.SignatureAlgorithm != 0 && template.SignatureAlgorithm.isRSAPSS() {
 	//	signerOpts = &rsa.PSSOptions{
 	//		SaltLength: rsa.PSSSaltLengthEqualsHash,
@@ -175,7 +178,7 @@ func CreateCertificateWithSplicedSignature(template, parent *Certificate) (cert 
 	//}
 
 	//var signature []byte
-	//signature, err = key.Sign(rand, digest, signerOpts)
+	//signature, err = key.Sign(rand, signed, signerOpts)
 	//if err != nil {
 	//	return
 	//}

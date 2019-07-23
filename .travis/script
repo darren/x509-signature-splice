@@ -1,6 +1,22 @@
 #!/bin/bash
 
-travis_retry go get github.com/tcnksm/ghr github.com/mitchellh/gox gopkg.in/alecthomas/gometalinter.v2
+DISABLE_LINTER=0
+
+if [[ "${TRAVIS_GO_VERSION}." = "1.6."* ]]; then
+  DISABLE_LINTER=1
+fi
+
+if [[ "${TRAVIS_GO_VERSION}." = "1.5."* ]]; then
+  DISABLE_LINTER=1
+fi
+
+if [[ "${DISABLE_LINTER}" = "1" ]]; then
+  echo "gometalinter and gox are disabled in this job due to ancient Go version."
+fi
+
+if [[ "${DISABLE_LINTER}" = "0" ]]; then
+  travis_retry go get github.com/tcnksm/ghr github.com/mitchellh/gox gopkg.in/alecthomas/gometalinter.v2
+fi
 
 go test -v ./...
 RESULT=$?
@@ -8,6 +24,10 @@ RESULT=$?
 echo Done tests with exit code $RESULT
 if [ "$RESULT" != "0" ]; then
   return $RESULT
+fi
+
+if [[ "${DISABLE_LINTER}" = "1" ]]; then
+  return 0
 fi
 
 # Static analysis

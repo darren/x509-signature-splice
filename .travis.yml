@@ -2,8 +2,6 @@ language: go
 go:
   - "1.12.5"
   - "1.12.x"
-  - "1.x"
-  - "master"
 
 sudo: false
 

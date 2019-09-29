@@ -15,7 +15,9 @@ if [[ "${DISABLE_LINTER}" = "1" ]]; then
 fi
 
 if [[ "${DISABLE_LINTER}" = "0" ]]; then
-  travis_retry go get github.com/tcnksm/ghr github.com/mitchellh/gox gopkg.in/alecthomas/gometalinter.v2
+  travis_retry go get -v github.com/tcnksm/ghr
+  travis_retry go get -v github.com/mitchellh/gox
+  travis_retry go get -v gopkg.in/alecthomas/gometalinter.v2
 fi
 
 go test -v ./...
